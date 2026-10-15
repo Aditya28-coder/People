@@ -1,0 +1,83 @@
+# Set Basic credentials locally and rerun CSRF initialization before each mutation.
+# See AUTHENTICATION.md for the browser login flow.
+@baseUrl = http://localhost:8080
+@employeeId = 1
+@basicCredentials = REPLACE_WITH_BASE64_USERNAME_COLON_PASSWORD
+
+### Initialize CSRF (REST Client must retain response cookies)
+# @name csrf
+GET {{baseUrl}}/api/auth/csrf
+
+### Current administrator
+GET {{baseUrl}}/api/auth/me
+Authorization: Basic {{basicCredentials}}
+
+### Create (copy the returned numeric id into employeeId above)
+POST {{baseUrl}}/api/employees
+Authorization: Basic {{basicCredentials}}
+X-CSRF-TOKEN: {{csrf.response.body.$.token}}
+Content-Type: application/json
+
+{
+  "fullName": "Ananya Sharma",
+  "email": "ananya@example.com",
+  "phoneNumber": "+91 98765 43210",
+  "department": "Engineering",
+  "designation": "Backend Engineer",
+  "dateOfJoining": "2025-01-10",
+  "salary": 1250000.25,
+  "status": "ACTIVE"
+}
+
+### List/search/filter/page
+GET {{baseUrl}}/api/employees?search=ananya&department=Engineering&status=ACTIVE&page=0&size=10&sortBy=fullName&direction=asc
+Authorization: Basic {{basicCredentials}}
+
+### Details
+GET {{baseUrl}}/api/employees/{{employeeId}}
+Authorization: Basic {{basicCredentials}}
+
+### Update
+PUT {{baseUrl}}/api/employees/{{employeeId}}
+Authorization: Basic {{basicCredentials}}
+X-CSRF-TOKEN: {{csrf.response.body.$.token}}
+Content-Type: application/json
+
+{
+  "fullName": "Ananya Sharma",
+  "email": "ananya@example.com",
+  "phoneNumber": "+91 98765 43210",
+  "department": "Engineering",
+  "designation": "Senior Backend Engineer",
+  "dateOfJoining": "2025-01-10",
+  "salary": 1500000.50,
+  "status": "ACTIVE"
+}
+
+### Summary
+GET {{baseUrl}}/api/employees/summary
+Authorization: Basic {{basicCredentials}}
+
+### Departments
+GET {{baseUrl}}/api/employees/departments
+Authorization: Basic {{basicCredentials}}
+
+### CSV export (all matching rows)
+GET {{baseUrl}}/api/employees/export?department=Engineering&status=ACTIVE
+Authorization: Basic {{basicCredentials}}
+
+### Validation example (400)
+POST {{baseUrl}}/api/employees
+Authorization: Basic {{basicCredentials}}
+X-CSRF-TOKEN: {{csrf.response.body.$.token}}
+Content-Type: application/json
+
+{"fullName":"","email":"invalid","phoneNumber":"abc","department":"","designation":"","dateOfJoining":null,"salary":-1,"status":"ACTIVE"}
+
+### Delete permanently (run last, only on your test record)
+DELETE {{baseUrl}}/api/employees/{{employeeId}}
+Authorization: Basic {{basicCredentials}}
+X-CSRF-TOKEN: {{csrf.response.body.$.token}}
+
+### API schema
+GET {{baseUrl}}/v3/api-docs

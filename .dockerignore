@@ -1,0 +1,10 @@
+.git
+.idea
+.vscode
+.env
+target/*
+!target/employee-management-1.0.0.jar
+data
+tmp
+docs/screenshots
+output

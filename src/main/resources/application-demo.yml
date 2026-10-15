@@ -1,0 +1,10 @@
+# Optional local demonstration. The assessment's primary database is PostgreSQL.
+spring:
+  datasource:
+    url: jdbc:h2:file:./data/employee-demo;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DEFAULT_NULL_ORDERING=HIGH
+    username: sa
+    password: ""
+    driver-class-name: org.h2.Driver
+app:
+  admin:
+    password: ${APP_ADMIN_PASSWORD:DemoAdmin123!}

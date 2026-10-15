@@ -1,0 +1,6 @@
+# Optional fast path after a successful local `mvn verify`.
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.runtime

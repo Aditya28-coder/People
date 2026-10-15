@@ -1,0 +1,285 @@
+{
+  "info": {
+    "name": "Employee Management",
+    "description": "Set username/password locally. Basic authentication is inherited. A pre-request hook fetches a CSRF token and cookie before each mutation. Run Create employee first to set employeeId. Use disposable records for delete requests.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080"
+    },
+    {
+      "key": "employeeId",
+      "value": ""
+    },
+    {
+      "key": "username",
+      "value": "admin"
+    },
+    {
+      "key": "password",
+      "value": ""
+    },
+    {
+      "key": "departmentId",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "CSRF token",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/auth/csrf"
+      }
+    },
+    {
+      "name": "Current user",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/auth/me"
+      }
+    },
+    {
+      "name": "Sort by employee ID descending",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/employees?sortBy=id&direction=desc"
+      }
+    },
+    {
+      "name": "List departments",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/departments"
+      }
+    },
+    {
+      "name": "Create department",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/api/departments",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"name\": \"Assessment QA\"}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "if (pm.response.code === 201) pm.collectionVariables.set('departmentId',pm.response.json().id);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Rename department",
+      "request": {
+        "method": "PUT",
+        "url": "{{baseUrl}}/api/departments/{{departmentId}}",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"name\": \"Assessment QA Updated\"}"
+        }
+      }
+    },
+    {
+      "name": "Delete empty department",
+      "request": {
+        "method": "DELETE",
+        "url": "{{baseUrl}}/api/departments/{{departmentId}}"
+      }
+    },
+    {
+      "name": "Create employee",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/employees",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"fullName\": \"Ananya Sharma\",\n  \"email\": \"ananya.assessment@example.com\",\n  \"phoneNumber\": \"+91 98765 43210\",\n  \"department\": \"Engineering\",\n  \"designation\": \"Backend Engineer\",\n  \"dateOfJoining\": \"2025-01-10\",\n  \"salary\": 1250000.25,\n  \"status\": \"ACTIVE\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Created', () => pm.response.to.have.status(201));",
+              "if (pm.response.code === 201) pm.collectionVariables.set('employeeId', pm.response.json().id);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "List employees",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/employees?page=0&size=10&sortBy=fullName&direction=asc"
+      }
+    },
+    {
+      "name": "Search and filter",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/employees?search=ananya&department=Engineering&status=ACTIVE&page=0&size=10"
+      }
+    },
+    {
+      "name": "Employee details",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/employees/{{employeeId}}"
+      }
+    },
+    {
+      "name": "Update employee",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/employees/{{employeeId}}",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"fullName\": \"Ananya Sharma\",\n  \"email\": \"ananya.assessment@example.com\",\n  \"phoneNumber\": \"+91 98765 43210\",\n  \"department\": \"Engineering\",\n  \"designation\": \"Senior Backend Engineer\",\n  \"dateOfJoining\": \"2025-01-10\",\n  \"salary\": 1500000.5,\n  \"status\": \"ACTIVE\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Summary",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/employees/summary"
+      }
+    },
+    {
+      "name": "Departments",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/employees/departments"
+      }
+    },
+    {
+      "name": "Export CSV",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/employees/export?department=Engineering&status=ACTIVE"
+      }
+    },
+    {
+      "name": "Validation error",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/employees",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"fullName\": \"Ananya Sharma\",\n  \"email\": \"bad\",\n  \"phoneNumber\": \"+91 98765 43210\",\n  \"department\": \"Engineering\",\n  \"designation\": \"Backend Engineer\",\n  \"dateOfJoining\": \"2025-01-10\",\n  \"salary\": -1,\n  \"status\": \"ACTIVE\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Delete employee (permanent; run last)",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": "{{baseUrl}}/api/employees/{{employeeId}}"
+      }
+    },
+    {
+      "name": "OpenAPI schema",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/v3/api-docs"
+      }
+    }
+  ],
+  "auth": {
+    "type": "basic",
+    "basic": [
+      {
+        "key": "username",
+        "value": "{{username}}",
+        "type": "string"
+      },
+      {
+        "key": "password",
+        "value": "{{password}}",
+        "type": "string"
+      }
+    ]
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "if (!['GET','HEAD','OPTIONS'].includes(pm.request.method)) {",
+          "  pm.sendRequest({url: pm.variables.get('baseUrl') + '/api/auth/csrf', method: 'GET'}, (error, response) => {",
+          "    if (error || response.code !== 200) throw new Error('Unable to initialize CSRF');",
+          "    const csrf = response.json();",
+          "    pm.request.headers.upsert({key: csrf.headerName, value: csrf.token});",
+          "  });",
+          "}"
+        ]
+      }
+    }
+  ]
+}
